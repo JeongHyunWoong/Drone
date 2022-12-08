@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.drone.mapper.DroneMapper">
+
+	<select id="selectAllDrone" resultType="DroneVO">
+	SELECT
+		uuid,
+		model_name AS modelName,
+		battery,
+		latitude,
+		longitude
+	FROM drone 
+	</select>
+	
+	<select id="selectOneDrone" resultType="DroneVO">
+		SELECT
+			uuid,
+			model_name AS modelName,
+			battery,
+			is_message AS isMsg,
+			loc,
+			latitude,
+			longitude,
+			create_at AS creatAt
+		FROM drone
+		WHERE uuid = #{uuid}
+	</select>
+
+	
+</mapper>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="title" content="IoT 관제 시스템" />
+    <meta property="article:author" content="GATSBY" />
+    <meta property="og:type" content="website" />
+    <title>IoT 관제 시스템</title>
+    <!-- 파비콘 -->
+    <!-- 파비콘 사진은 .ico로 변환을 해줘야 한다! -->
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <!-- index css -->
+    <link rel="stylesheet" href="css/index.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav">
+        <!-- react, angular 같은 프론트 프레임워크에서는 onclick을 지향 -->
+       <!--  <div class="item" onclick="getDrone()">
+          <div class="drone-image">
+            <img src="images/drone_1.jpg" />
+            드론(IoT) 고유아이디(*UUID)
+            <h3>KAZA-556699</h3>
+            드론 배터리 정보
+            <p>배터리 잔량 : <span>88%</span></p>
+          </div>
+        </div>
+        <div class="item" onclick="getDrone()">
+          <div class="drone-image">
+            <img src="images/drone_2.jpg" />
+            드론(IoT) 고유아이디(*UUID)
+            <h3>ADCC-117700</h3>
+            드론 배터리 정보
+            <p>배터리 잔량 : <span>70%</span></p>
+          </div>
+        </div>
+        <div class="item" onclick="getDrone()">
+          <div class="drone-image">
+            <img src="images/drone_3.jpg" />
+            드론(IoT) 고유아이디(*UUID)
+            <h3>ZOOP-411133</h3>
+            드론 배터리 정보
+            <p>배터리 잔량 : <span>83%</span></p>
+          </div>
+        </div>
+        <div class="item" onclick="getDrone()">
+          <div class="drone-image">
+            <img src="images/drone_4.jpg" />
+            드론(IoT) 고유아이디(*UUID)
+            <h3>SAMA-931207</h3>
+            드론 배터리 정보
+            <p>배터리 잔량 : <span>99%</span></p>
+          </div>
+        </div>
+        <div class="item" onclick="getDrone()">
+          <div class="drone-image">
+            <img src="images/drone_5.jpg" />
+            드론(IoT) 고유아이디(*UUID)
+            <h3>AJJK-581238</h3>
+            드론 배터리 정보
+            <p>배터리 잔량 : <span>89%</span></p>
+          </div>
+        </div> -->
+      </div>
+      <div id="kakao-map" class="map">
+        <div class="drone-init">
+          <a href="#">
+            <span>드론 위치 새로고침</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+  <!-- 카카오 맵 사용을 위한 JS -->
+  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8d2a405849f0df8e86396609bab2ffbe"></script>
+  <script
+        src="https://code.jquery.com/jquery-3.6.1.js"
+        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+        crossorigin="anonymous"></script>
+  <script>
+    initMap();
+    getDrones();
+    //등록된 드론 정보 가져오기
+    //Jquery AJAX는 Spring 부트를 사용하던, 전자정부프레임워크를 사용하던 사용하는 방법은 똑같다.
+    //회사에서 JSP를 사용하던 뭘 사용하던 리액트, 뷰, 앵귤러를 사용하는게 아니라면, 아래 로직은 무조건 사용한다.
+    function getDrones(){
+    	$.ajax({
+			url : '/drones',
+      	  	type : 'GET',
+      	  	dataType : 'json',
+      	  	success : function(response){
+      		  var html = "";
+      		  
+      		  //uuid, 모델이름, 배터리
+			  for(var i=0; i<response.length; i++){
+				  //이미지는 이미지서버에 관리를 하고 이미지 경로를 db에 저장한다.
+				  html += '<div class = "item" onclick="getDrone('+response[i].uuid+')"><div class="drone-image"><img src="images/drone_'+(i+1)+'.jpg" /><h3>'+ response[i].modelName+'</h3><p>배터리 잔량 : <span>'+response[i].battery+'%</span></p></div></div>';
+			  }      		  
+      		  $('.nav').append(html);
+      	  	}
+    	});
+    }
+    
+    //맵 초기화 함수
+    function initMap() {
+      var mapContainer = document.getElementById('kakao-map'), // 지도를 표시할 div
+        mapOption = {
+          center: new kakao.maps.LatLng(36.3286904, 127.4229992), // 지도의 중심좌표
+          level: 8, // 지도의 확대 레벨
+        };
+      var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+      
+      $.ajax({
+    	  url : '/drones',
+    	  type : 'GET',
+    	  dataType : 'json',
+    	  success : function(response){
+    		  console.log(response);
+    		  var positions = [];
+    		  for(var i=0; i<response.length; i++){
+    			  
+    			  var jsonData = {
+    					  content: '<div style="margin : 10px;">'+ response[i].modelName +'</div>',
+    					  latlng: new kakao.maps.LatLng(Number(response[i].latitude), Number(response[i].longitude)),
+    			  };
+    			  positions[i] = jsonData;
+    		  }
+
+    		      // 마커 여러개 생성하기
+    		      for (var i = 0; i < positions.length; i++) {
+    		        // 마커를 생성합니다
+    		        var marker = new kakao.maps.Marker({
+    		          map: map,
+    		          position: positions[i].latlng,
+    		        });
+
+    		        // 인포 윈도우 생성하기
+    		        var infowindow = new kakao.maps.InfoWindow({
+    		          content: positions[i].content,
+    		        });
+
+    		        // 이벤트 생성하기
+    		        // Listener란 이벤트를 준비하는걸 의미
+    		        kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+    		        kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+    		      }
+    	  }
+      });
+      
+      
+    }
+    /*
+    ***자바 스크립트 메소드 특징💗
+
+    function 함수이름(사과) {
+	
+    }
+    1. 리턴타입이 없다.
+    2. 파라미터 타입이 없다.
+    3. 리턴에 함수를 작성할 수 있음.(클로저)
+    */
+
+    // 인포 윈도우 생성
+    function makeOverListener(map, marker, infowindow) {
+      return function () {
+        infowindow.open(map, marker);
+      };
+    }
+    // 인포 윈도우 닫기
+    function makeOutListener(infowindow) {
+      return function () {
+        infowindow.close();
+      };
+    }
+
+    //드론 상세페이지 이동
+    function getDrone(uuid) {
+      	location.href = '/drone/detail/'+uuid; 
+    }
+  </script>
+</html>

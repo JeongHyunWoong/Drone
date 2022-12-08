@@ -1,0 +1,8 @@
+ .gallery {
+        width: 1200px;
+        height: 500px;
+        background-color: #efefef;
+        /* 위로 120px 내려가고 오른쪽 왼쪽 자동으로 맞춰줌 */
+        margin: 50px auto;
+        display: flex;
+      }

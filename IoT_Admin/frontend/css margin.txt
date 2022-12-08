@@ -1,0 +1,12 @@
+margin: 10px // 동서남북 모드 10px 패딩
+
+margin: 5px(위) 10px(오른쪽&왼쪽) 0(아래);
+
+margin: 5px(위&아래) 10px(오른쪽&왼쪽);
+
+margin: 10px(위) 20px(오른쪽) 30px(아래쪽) 10px(왼쪽)
+
+margin-right
+margin-left
+margin-top
+margin-bottom
